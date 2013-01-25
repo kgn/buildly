@@ -21,10 +21,10 @@ def buildPublish(branchDirectory, target, output, displayName=None, mobileprovis
         return outputAppDsym(output, target, version)
 
     if displayName or mobileprovision or replacementIconsDirectory or identity:
-        def modify(app):
-            _replaceIcons(app, replacementIconsDirectory)
-            _updateAppInfo(app, displayName, xcode.identifier(mobileprovision))
-            xcode.codesign(app, mobileprovision, identity)
+        def modify(payloadApp):
+            _replaceIcons(payloadApp, replacementIconsDirectory)
+            _updateAppInfo(payloadApp, displayName, xcode.identifier(mobileprovision))
+            xcode.codesign(payloadApp, mobileprovision, identity)
         app, dsym = xcode.build(branchDirectory, target)
     else:
         app, dsym = xcode.build(branchDirectory, target)
@@ -38,7 +38,7 @@ def buildPublish(branchDirectory, target, output, displayName=None, mobileprovis
     return outputApp, outputDsym
 
 def hockeyappUpload(app, dsym, displayName, replacementIconsDirectory, mobileprovision,
-        identity, hockey_token, hockeyapp_identifier, **hockeyArgs):
+        identity, hockey_token, hockeyapp_identifier, ipaPackageHook=None, **hockeyArgs):
 
     appVersion = xcode.version(app)
     identifier = xcode.identifier(mobileprovision)
@@ -46,10 +46,11 @@ def hockeyappUpload(app, dsym, displayName, replacementIconsDirectory, mobilepro
         print '%(appVersion)s has already been uploaded to HockeyApp' % locals()
         return
 
-    def modify(ipaApp):
-        _replaceIcons(ipaApp, replacementIconsDirectory)
-        _updateAppInfo(ipaApp, displayName, identifier)
-        xcode.codesign(ipaApp, mobileprovision, identity)
+    def modify(payloadApp):
+        _replaceIcons(payloadApp, replacementIconsDirectory)
+        _updateAppInfo(payloadApp, displayName, identifier)
+        _ipaPackageHook(payloadApp, ipaPackageHook)        
+        xcode.codesign(payloadApp, mobileprovision, identity)
     ipa = xcode.package(app, modify)
 
     tempdir = os.path.dirname(ipa)
@@ -62,8 +63,10 @@ def hockeyappUpload(app, dsym, displayName, replacementIconsDirectory, mobilepro
     webbrowser.open_new_tab(hockeyOutput['config_url'])
     shutil.rmtree(tempdir)
 
-def releaseBuild(app, dsym, hockey_token, hockeyapp_identifier, **hockeyArgs):
-    ipa = xcode.package(app)
+def releaseBuild(app, dsym, hockey_token, hockeyapp_identifier, ipaPackageHook, **hockeyArgs):
+    def modify(payloadApp):
+        _ipaPackageHook(payloadApp, config_script)
+    ipa = xcode.package(app, modify)
 
     hockeyArgs['dsym'] = dsym
     hockeyOutput = hockeyapp.upload(hockey_token, hockeyapp_identifier, ipa, **hockeyArgs)
@@ -96,7 +99,7 @@ def _replaceIcons(app, iconDirectory):
         return
     for icon in os.listdir(iconDirectory):
         if not icon.endswith('png'): continue
-        shutil.copy2(os.path.join(icon_directory, icon), os.path.join(app, icon))
+        shutil.copy2(os.path.join(iconDirectory, icon), os.path.join(app, icon))
 
 def _updateAppInfo(app, displayName, identifier):
     data = {}
@@ -105,3 +108,7 @@ def _updateAppInfo(app, displayName, identifier):
     if identifier:
         data['CFBundleIdentifier'] = identifier
     xcode.updateInfoPlist(app, data)
+
+def _ipaPackageHook(payloadApp, script):
+    if not os.path.isfile(script): return
+    subprocess.call('python "%(script)s" "%(payloadApp)s"' % locals(), shell=True)

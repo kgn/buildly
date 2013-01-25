@@ -17,9 +17,11 @@ def build(branchDirectory):
 
 def distribute(app, dsym, branchDirectory, config):
     icon_directory = configData['configurations'][config].get('icon_directory')
-    replacementIconsDirectory = os.path.join(branchDirectory, icon_directory) if icon_directory else None
+    replacementIconsDirectory = os.path.join(projectDirectory, icon_directory) if icon_directory else None
+    ipaPackageHook = configData['configurations'][config].get('ipa_package_hook')
+    if ipaPackageHook: ipaPackageHook = os.path.join(root, ipaPackageHook)
     mobileprovision = configData['configurations'][config].get('mobileprovision')
-    mobileprovision = os.path.join(root, mobileprovision) if mobileprovision else None
+    mobileprovision = os.path.join(projectDirectory, mobileprovision) if mobileprovision else None
     hockeyapp_identifier = configData['configurations'][config]['hockeyapp_identifier']
     display_name = configData['configurations'][config].get('display_name')
     identity = configData['configurations'][config].get('identity')
@@ -35,10 +37,10 @@ def distribute(app, dsym, branchDirectory, config):
         hockeyapp_additions['status'] = buildly.hockeyapp.available
 
     if config == 'release':
-        buildly.releaseBuild(app, dsym, hockey_token, hockeyapp_identifier, **hockeyapp_additions)
+        buildly.releaseBuild(app, dsym, hockey_token, hockeyapp_identifier, ipaPackageHook, **hockeyapp_additions)
     else:
         buildly.hockeyappUpload(app, dsym, display_name, replacementIconsDirectory, mobileprovision,
-            identity, hockey_token, hockeyapp_identifier, **hockeyapp_additions)
+            identity, hockey_token, hockeyapp_identifier, ipaPackageHook, **hockeyapp_additions)
     print '%(config)s build complete!' % locals()
     if release_notes:
         print release_notes
@@ -91,14 +93,14 @@ if args.config:
     if not os.path.isfile(args.config):
         raise RuntimeError('Config plist does not exist: %s' % args.config)
 
-    root = os.path.dirname(args.config)
+    projectDirectory = os.path.abspath(os.path.dirname(args.config))
     configData = buildly.plistlib27.readPlist(args.config)
 
     target = configData['target']
     hockey_token = configData['hockeyapp_token']
     output = os.path.expanduser(configData['output_directory'])
 
-    branchesDirectory = os.path.join(root, 'branches')
+    branchesDirectory = os.path.join(projectDirectory, 'branches')
     if not os.path.isdir(branchesDirectory):
         os.makedirs(branchesDirectory)
 

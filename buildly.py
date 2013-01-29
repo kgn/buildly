@@ -19,7 +19,7 @@ def distribute(app, dsym, branchDirectory, config):
     icon_directory = configData['configurations'][config].get('icon_directory')
     replacementIconsDirectory = os.path.join(projectDirectory, icon_directory) if icon_directory else None
     ipaPackageHook = configData['configurations'][config].get('ipa_package_hook')
-    if ipaPackageHook: ipaPackageHook = os.path.join(root, ipaPackageHook)
+    if ipaPackageHook: ipaPackageHook = os.path.join(projectDirectory, ipaPackageHook)
     mobileprovision = configData['configurations'][config].get('mobileprovision')
     mobileprovision = os.path.join(projectDirectory, mobileprovision) if mobileprovision else None
     hockeyapp_identifier = configData['configurations'][config]['hockeyapp_identifier']
@@ -61,10 +61,10 @@ def runConfig(config):
             lastVersion = versionFile.read().strip()
 
     if version == lastVersion:
-        print 'Nothing new to build'
+        print 'Nothing new to build: %(config)s %(version)s from %(branchName)s' % locals()
         return
 
-    print 'Buildling %(config)s %(version)s from %(branchName)s' % locals()
+    print 'Buildling: %(config)s %(version)s from %(branchName)s' % locals()
 
     app, dsym = build(branchDirectory)
     distribute(app, dsym, branchDirectory, config)

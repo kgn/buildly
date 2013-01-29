@@ -65,7 +65,7 @@ def hockeyappUpload(app, dsym, displayName, replacementIconsDirectory, mobilepro
 
 def releaseBuild(app, dsym, hockey_token, hockeyapp_identifier, ipaPackageHook, **hockeyArgs):
     def modify(payloadApp):
-        _ipaPackageHook(payloadApp, config_script)
+        _ipaPackageHook(payloadApp, ipaPackageHook)
     ipa = xcode.package(app, modify)
 
     hockeyArgs['dsym'] = dsym

@@ -8,9 +8,9 @@ import time
 
 def build(branchDirectory):
     icon_directory = configData['configurations'].get('release', {}).get('icon_directory')
-    replacementIconsDirectory = os.path.join(branchDirectory, icon_directory) if icon_directory else None
+    replacementIconsDirectory = os.path.join(projectDirectory, icon_directory) if icon_directory else None
     mobileprovision = configData['configurations'].get('release', {}).get('mobileprovision')
-    mobileprovision = os.path.join(branchDirectory, mobileprovision) if mobileprovision else None
+    mobileprovision = os.path.join(projectDirectory, mobileprovision) if mobileprovision else None
     displayName = configData['configurations'].get('release', {}).get('display_name')
     identity = configData['configurations'].get('release', {}).get('identity')
     return buildly.buildPublish(branchDirectory, target, output, displayName, mobileprovision, replacementIconsDirectory, identity)

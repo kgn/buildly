@@ -25,7 +25,7 @@ def buildPublish(branchDirectory, target, output, displayName=None, mobileprovis
             _replaceIcons(payloadApp, replacementIconsDirectory)
             _updateAppInfo(payloadApp, displayName, xcode.identifier(mobileprovision))
             xcode.codesign(payloadApp, mobileprovision, identity)
-        app, dsym = xcode.build(branchDirectory, target)
+        app, dsym = xcode.build(branchDirectory, target, modify)
     else:
         app, dsym = xcode.build(branchDirectory, target)
 

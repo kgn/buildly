@@ -1,17 +1,19 @@
-__all__ = ('projectVersion', 'buildPublish', 'hockeyappUpload', 'releaseBuild', 'releaseNotes', 'outputAppDsym')
+__all__ = ('projectVersion', 'projectShortVersion', 'buildPublish', 'hockeyappUpload', 'releaseBuild', 'releaseNotes', 'outputAppDsym')
 
 import os
 import shutil
 import xcode
 import hockeyapp
 import git
-import webbrowser
 import subprocess
 import time
 import plistlib27
 
 def projectVersion(branchDirectory, target):
     return plistlib27.readPlist(os.path.join(branchDirectory, target+'-Info.plist'))['CFBundleVersion']
+
+def projectShortVersion(branchDirectory, target):
+    return plistlib27.readPlist(os.path.join(branchDirectory, target+'-Info.plist'))['CFBundleShortVersionString']
 
 def buildPublish(branchDirectory, target, output, displayName=None, mobileprovision=None, replacementIconsDirectory=None, identity=None):
     version = projectVersion(branchDirectory, target)
@@ -60,7 +62,6 @@ def hockeyappUpload(app, dsym, displayName, replacementIconsDirectory, mobilepro
 
     hockeyArgs['dsym'] = tempDsym
     hockeyOutput = hockeyapp.upload(hockey_token, hockeyapp_identifier, ipa, **hockeyArgs)
-    webbrowser.open_new_tab(hockeyOutput['config_url'])
     shutil.rmtree(tempdir)
 
 def releaseBuild(app, dsym, hockey_token, hockeyapp_identifier, ipaPackageHook, **hockeyArgs):
@@ -70,7 +71,6 @@ def releaseBuild(app, dsym, hockey_token, hockeyapp_identifier, ipaPackageHook, 
 
     hockeyArgs['dsym'] = dsym
     hockeyOutput = hockeyapp.upload(hockey_token, hockeyapp_identifier, ipa, **hockeyArgs)
-    webbrowser.open_new_tab(hockeyOutput['config_url'])
     shutil.rmtree(os.path.dirname(ipa))
 
     archive = xcode.archive(app, dsym)

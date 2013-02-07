@@ -5,6 +5,7 @@ import os
 import lib as buildly
 import argparse
 import time
+import subprocess
 
 def build(branchDirectory):
     icon_directory = configData['configurations'].get('release', {}).get('icon_directory')
@@ -46,6 +47,8 @@ def distribute(app, dsym, branchDirectory, config):
         print release_notes
 
 def runConfig(config):
+    postBuildHook = configData['configurations'][config].get('post_build_hook')
+    if postBuildHook: postBuildHook = os.path.join(projectDirectory, postBuildHook)
     branchName = configData['configurations'][config]['git_branch']
     branchDirectory = os.path.join(branchesDirectory, branchName)
     if not os.path.isdir(branchDirectory):
@@ -76,6 +79,10 @@ def runConfig(config):
 
     if config == 'release':
         buildly.git.tagRelease(branchDirectory, version)
+    
+    if os.path.isfile(postBuildHook):
+        shortVersion = buildly.projectShortVersion(branchDirectory, target)
+        subprocess.call('python "%(postBuildHook)s" "%(shortVersion)s"' % locals(), shell=True)
 
 parser = argparse.ArgumentParser(description='Build & Distribute')
 parser.add_argument('-c', '--configuration', dest='config', metavar='configuration plist',

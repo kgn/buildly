@@ -64,19 +64,20 @@ def hockeyappUpload(app, dsym, displayName, replacementIconsDirectory, mobilepro
     hockeyOutput = hockeyapp.upload(hockey_token, hockeyapp_identifier, ipa, **hockeyArgs)
     shutil.rmtree(tempdir)
 
-def releaseBuild(app, dsym, hockey_token, hockeyapp_identifier, ipaPackageHook, **hockeyArgs):
+def releaseBuild(app, dsym, branchDirectory, target, output, hockey_token, hockeyapp_identifier, ipaPackageHook, **hockeyArgs):
     def modify(payloadApp):
         _ipaPackageHook(payloadApp, ipaPackageHook)
+    
     ipa = xcode.package(app, modify)
-
     hockeyArgs['dsym'] = dsym
     hockeyOutput = hockeyapp.upload(hockey_token, hockeyapp_identifier, ipa, **hockeyArgs)
     shutil.rmtree(os.path.dirname(ipa))
 
-    archive = xcode.archive(app, dsym)
-    subprocess.call('open "%(archive)s"' % locals(), shell=True)
-    time.sleep(2) # sleep to give xcode time to launch
-
+    archive = xcode.archive(app, dsym, modify)
+    version = projectVersion(branchDirectory, target)
+    outputDirectory = _outputDirectory(output, version)
+    outputArchive = os.path.join(outputDirectory, os.path.basename(archive))
+    shutil.copytree(archive, outputArchive)
     shutil.rmtree(os.path.dirname(archive))
 
 def releaseNotes(branchDirectory, hockey_token, hockeyapp_identifier):

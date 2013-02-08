@@ -38,7 +38,7 @@ def distribute(app, dsym, branchDirectory, config):
         hockeyapp_additions['status'] = buildly.hockeyapp.available
 
     if config == 'release':
-        buildly.releaseBuild(app, dsym, hockey_token, hockeyapp_identifier, ipaPackageHook, **hockeyapp_additions)
+        buildly.releaseBuild(app, dsym, branchDirectory, target, output, hockey_token, hockeyapp_identifier, ipaPackageHook, **hockeyapp_additions)
     else:
         buildly.hockeyappUpload(app, dsym, display_name, replacementIconsDirectory, mobileprovision,
             identity, hockey_token, hockeyapp_identifier, ipaPackageHook, **hockeyapp_additions)

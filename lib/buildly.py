@@ -39,19 +39,19 @@ def buildPublish(branchDirectory, target, output, displayName=None, mobileprovis
 
     return outputApp, outputDsym
 
-def hockeyappUpload(app, dsym, displayName, replacementIconsDirectory, mobileprovision,
-        identity, hockey_token, hockeyapp_identifier, ipaPackageHook=None, **hockeyArgs):
+def hockeyappUpload(app, dsym, displayName, replacementIconsDirectory,
+    mobileprovision, identity, ipaPackageHook=None, **hockeyArgs):
 
     appVersion = xcode.version(app)
     identifier = xcode.identifier(mobileprovision)
-    if xcode.version(app) in hockeyapp.versions(hockey_token, hockeyapp_identifier):
+    if xcode.version(app) in hockeyapp.versions(hockeyArgs['teamToken'], hockeyArgs['appIdentifier']):
         print '%(appVersion)s has already been uploaded to HockeyApp' % locals()
         return
 
     def modify(payloadApp):
         _replaceIcons(payloadApp, replacementIconsDirectory)
         _updateAppInfo(payloadApp, displayName, identifier)
-        _ipaPackageHook(payloadApp, ipaPackageHook)        
+        _ipaPackageHook(payloadApp, ipaPackageHook)
         xcode.codesign(payloadApp, mobileprovision, identity)
     ipa = xcode.package(app, modify)
 
@@ -61,16 +61,16 @@ def hockeyappUpload(app, dsym, displayName, replacementIconsDirectory, mobilepro
     xcode.updateDsymIdentifier(tempDsym, identifier)
 
     hockeyArgs['dsym'] = tempDsym
-    hockeyOutput = hockeyapp.upload(hockey_token, hockeyapp_identifier, ipa, **hockeyArgs)
+    hockeyOutput = hockeyapp.upload(hockeyArgs['teamToken'], hockeyArgs['appIdentifier'], ipa, **hockeyArgs)
     shutil.rmtree(tempdir)
 
-def releaseBuild(app, dsym, branchDirectory, target, output, hockey_token, hockeyapp_identifier, ipaPackageHook, **hockeyArgs):
+def releaseBuild(app, dsym, branchDirectory, target, output, ipaPackageHook, **hockeyArgs):
     def modify(payloadApp):
         _ipaPackageHook(payloadApp, ipaPackageHook)
-    
+
     ipa = xcode.package(app, modify)
     hockeyArgs['dsym'] = dsym
-    hockeyOutput = hockeyapp.upload(hockey_token, hockeyapp_identifier, ipa, **hockeyArgs)
+    hockeyOutput = hockeyapp.upload(hockeyArgs['teamToken'], hockeyArgs['appIdentifier'], ipa, **hockeyArgs)
     shutil.rmtree(os.path.dirname(ipa))
 
     archive = xcode.archive(app, dsym, modify)
@@ -80,8 +80,8 @@ def releaseBuild(app, dsym, branchDirectory, target, output, hockey_token, hocke
     shutil.copytree(archive, outputArchive)
     shutil.rmtree(os.path.dirname(archive))
 
-def releaseNotes(branchDirectory, hockey_token, hockeyapp_identifier):
-    return git.releaseNotes(branchDirectory, hockeyapp.latestVersion(hockey_token, hockeyapp_identifier))
+def releaseNotes(branchDirectory, **hockeyArgs):
+    return git.releaseNotes(branchDirectory, hockeyapp.latestVersion(hockeyArgs['teamToken'], hockeyArgs['appIdentifier']))
 
 def outputAppDsym(outputRoot, target, version):
     directory = _outputDirectory(outputRoot, version)

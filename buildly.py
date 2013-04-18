@@ -22,28 +22,16 @@ def distribute(app, dsym, branchDirectory, config):
     if ipaPackageHook: ipaPackageHook = os.path.join(projectDirectory, ipaPackageHook)
     mobileprovision = configData['configurations'][config].get('mobileprovision')
     mobileprovision = os.path.join(projectDirectory, mobileprovision) if mobileprovision else None
-    hockeyapp_identifier = configData['configurations'][config]['hockeyapp_identifier']
     display_name = configData['configurations'][config].get('display_name')
     identity = configData['configurations'][config].get('identity')
-
-    release_notes = buildly.releaseNotes(branchDirectory, hockey_token, hockeyapp_identifier)
-    additional_release_notes = configData['configurations'][config].get('additional_release_notes')
-    if additional_release_notes:
-        release_notes += '\n\n'+additional_release_notes
-
-    hockeyapp_additions = {'notes': release_notes}
-    hockeyapp_additions['notify'] = configData['configurations'][config].get('hockeyapp_notify', False)
-    if configData['configurations'][config].get('hockeyapp_status') == 'available':
-        hockeyapp_additions['status'] = buildly.hockeyapp.available
+    hockeyArgs = configData['configurations'][config]['hockeyapp']
 
     if config == 'release':
-        buildly.releaseBuild(app, dsym, branchDirectory, target, output, hockey_token, hockeyapp_identifier, ipaPackageHook, **hockeyapp_additions)
+        buildly.releaseBuild(app, dsym, branchDirectory, target, output, ipaPackageHook, **hockeyArgs)
     else:
-        buildly.hockeyappUpload(app, dsym, display_name, replacementIconsDirectory, mobileprovision,
-            identity, hockey_token, hockeyapp_identifier, ipaPackageHook, **hockeyapp_additions)
+        buildly.hockeyappUpload(app, dsym, display_name, replacementIconsDirectory,
+            mobileprovision, identity, ipaPackageHook, **hockeyArgs)
     print '%(config)s build complete!' % locals()
-    if release_notes:
-        print release_notes
 
 def runConfig(config):
     postBuildHook = configData['configurations'][config].get('post_build_hook')
@@ -93,7 +81,6 @@ def readConfig(configFile):
     configData = buildly.plistlib27.readPlist(configFile)
 
     target = configData['target']
-    hockey_token = configData['hockeyapp_token']
     output = os.path.expanduser(configData['output_directory'])
 
     branchesDirectory = os.path.join(projectDirectory, 'branches')

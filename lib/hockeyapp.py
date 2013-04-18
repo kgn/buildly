@@ -11,16 +11,22 @@ markdown = 1
 unavailable = 1
 available = 2
 
-def upload(teamToken, appIdentifier, ipa, dsym=None, dsymIdentifier=None, notes='',
+def upload(teamToken, appIdentifier, ipa, dsym=None, dsymIdentifier=None, notes='', additionalNotes='',
     notesType=textile, notify=False, status=unavailable, mandatory=False, tags=None):
 
+    status = _status(status)
+    notesType = _notesType(notesType)
     tags = '' if not tags else ','.join(tags)
-    #TODO: properly escape '
-    notes = '' if not notes else notes.replace("'", '`')
+    notes = '' if not notes else notes.replace("'", '`') #TODO: properly escape '
+
     releaseNotesMaxLength = 5000
-    if len(notes) > releaseNotesMaxLength:
-        notes = notes[:releaseNotesMaxLength]
+    if len(notes)+len(additionalNotes) > releaseNotesMaxLength:
+        notes = notes[:releaseNotesMaxLength-len(additionalNotes)]
         print 'HockeyApp release notes max length is %d characters, release notes will be truncated' % releaseNotesMaxLength
+    if additionalNotes: notes += '\n\n' + additionalNotes
+
+    if notes:
+        print notes
 
     dsymCurl = ''
     if dsym:
@@ -58,3 +64,13 @@ def latestVersion(teamToken, appIdentifier):
         if utils.laterOrEqualVersionStringCompare(version, lastVersion):
             lastVersion = version
     return lastVersion
+
+def _notesType(notesType):
+    if notesType.lower() == 'markdown': notesType = 1
+    if notesType == 1: return 1
+    return 0
+
+def _status(status):
+    if status.lower() == 'available': status = 2
+    if status == 2: return 2
+    return 1

@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import os
+import os, sys
 import lib as buildly
-import argparse
-import time
 import subprocess
+import time
 
 def build(branchDirectory):
     icon_directory = configData['configurations'].get('release', {}).get('icon_directory')
@@ -79,29 +78,19 @@ def runConfig(config):
 
     if config == 'release':
         buildly.git.tagRelease(branchDirectory, version)
-    
+
     if os.path.isfile(postBuildHook):
         shortVersion = buildly.projectShortVersion(branchDirectory, target)
         subprocess.call('python "%(postBuildHook)s" "%(shortVersion)s"' % locals(), shell=True)
 
-parser = argparse.ArgumentParser(description='Build & Distribute')
-parser.add_argument('-c', '--configuration', dest='config', metavar='configuration plist',
-    type=str, help='The configuration plist for the app')
-parser.add_argument('-b', '--build', dest='build', action="store_true",
-    default=False, help='Build the app')
-parser.add_argument('-d', '--distribute', dest='distribute', metavar='configurations',
-    type=str, help='A comma seperated list of configurations to distribute')
-parser.add_argument('--release_notes', dest='release_notes', metavar='version',
-    type=str, help='Print the release notes')
-parser.add_argument('version', nargs='?')
-args = parser.parse_args()
+def readConfig(configFile):
+    if not configFile: raise RuntimeError('No config plist specified')
+    if not os.path.isfile(configFile): raise RuntimeError('Config plist does not exist: %s' % configFile)
 
-if args.config:
-    if not os.path.isfile(args.config):
-        raise RuntimeError('Config plist does not exist: %s' % args.config)
+    projectDirectory = os.path.abspath(os.path.dirname(configFile))
+    buildly.git.pull(projectDirectory)
 
-    projectDirectory = os.path.abspath(os.path.dirname(args.config))
-    configData = buildly.plistlib27.readPlist(args.config)
+    configData = buildly.plistlib27.readPlist(configFile)
 
     target = configData['target']
     hockey_token = configData['hockeyapp_token']
@@ -111,9 +100,12 @@ if args.config:
     if not os.path.isdir(branchesDirectory):
         os.makedirs(branchesDirectory)
 
-    while(1):
-        for config in configData['configurations']:
-            runConfig(config)
-        time.sleep(10*60)
-else:
-    raise RuntimeError('No config plist specified')
+    for config in configData['configurations']:
+        runConfig(config)
+
+while(1):
+    configFile = None
+    if len(sys.argv) > 0:
+        configFile = sys.argv[1]
+    readConfig(configFile)
+    time.sleep(10*60)

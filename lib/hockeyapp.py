@@ -16,7 +16,8 @@ def upload(ipa, teamToken, appIdentifier, dsym=None, dsymIdentifier=None, notes=
 
     status = _status(status)
     notesType = _notesType(notesType)
-    tags = '' if not tags else ','.join(tags)
+    if not isinstance(tags, basestring):
+        tags = '' if not tags else ','.join(tags)
     notes = '' if not notes else notes.replace("'", '`') #TODO: properly escape '
 
     releaseNotesMaxLength = 5000

@@ -6,7 +6,7 @@ import lib as buildly
 import subprocess
 import time
 
-def build(branchDirectory, configData):
+def build(branchDirectory, configData, projectDirectory):
     target = configData['target']
     output = os.path.expanduser(configData['output_directory'])
     icon_directory = configData['configurations'].get('release', {}).get('icon_directory')
@@ -17,7 +17,7 @@ def build(branchDirectory, configData):
     identity = configData['configurations'].get('release', {}).get('identity')
     return buildly.buildPublish(branchDirectory, target, output, displayName, mobileprovision, replacementIconsDirectory, identity)
 
-def distribute(app, dsym, branchDirectory, config, configData):
+def distribute(app, dsym, branchDirectory, config, configData, projectDirectory):
     target = configData['target']
     output = os.path.expanduser(configData['output_directory'])
     icon_directory = configData['configurations'][config].get('icon_directory')
@@ -37,7 +37,7 @@ def distribute(app, dsym, branchDirectory, config, configData):
             mobileprovision, identity, ipaPackageHook, **hockeyArgs)
     print '%(config)s build complete!' % locals()
 
-def runConfig(config, configData):
+def runConfig(config, configData, projectDirectory):
     target = configData['target']
     postBuildHook = configData['configurations'][config].get('post_build_hook')
     if postBuildHook: postBuildHook = os.path.join(projectDirectory, postBuildHook)
@@ -61,8 +61,8 @@ def runConfig(config, configData):
 
     print 'Buildling: %(config)s %(version)s from %(branchName)s' % locals()
 
-    app, dsym = build(branchDirectory, configData)
-    distribute(app, dsym, branchDirectory, config, configData)
+    app, dsym = build(branchDirectory, configData, projectDirectory)
+    distribute(app, dsym, branchDirectory, config, configData, projectDirectory)
 
     with open(versionFilepath, 'w') as versionFile:
         versionFile.write(version)
@@ -89,7 +89,7 @@ def readConfig(configFile):
         os.makedirs(branchesDirectory)
 
     for config in configData['configurations']:
-        runConfig(config, configData)
+        runConfig(config, configData, projectDirectory)
 
 while(1):
     configFile = None

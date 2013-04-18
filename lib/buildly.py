@@ -61,7 +61,7 @@ def hockeyappUpload(app, dsym, displayName, replacementIconsDirectory,
     xcode.updateDsymIdentifier(tempDsym, identifier)
 
     hockeyArgs['dsym'] = tempDsym
-    hockeyOutput = hockeyapp.upload(hockeyArgs['teamToken'], hockeyArgs['appIdentifier'], ipa, **hockeyArgs)
+    hockeyOutput = hockeyapp.upload(ipa, **hockeyArgs)
     shutil.rmtree(tempdir)
 
 def releaseBuild(app, dsym, branchDirectory, target, output, ipaPackageHook, **hockeyArgs):
@@ -70,7 +70,7 @@ def releaseBuild(app, dsym, branchDirectory, target, output, ipaPackageHook, **h
 
     ipa = xcode.package(app, modify)
     hockeyArgs['dsym'] = dsym
-    hockeyOutput = hockeyapp.upload(hockeyArgs['teamToken'], hockeyArgs['appIdentifier'], ipa, **hockeyArgs)
+    hockeyOutput = hockeyapp.upload(ipa, **hockeyArgs)
     shutil.rmtree(os.path.dirname(ipa))
 
     archive = xcode.archive(app, dsym, modify)

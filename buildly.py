@@ -91,9 +91,10 @@ def readConfig(configFile):
     for config in configData['configurations']:
         runConfig(config, configData, projectDirectory, branchesDirectory)
 
+configFile = None
+if len(sys.argv) > 0:
+    configFile = os.path.abspath(sys.argv[1])
+
 while(1):
-    configFile = None
-    if len(sys.argv) > 0:
-        configFile = sys.argv[1]
     readConfig(configFile)
     time.sleep(10*60)

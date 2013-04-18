@@ -37,7 +37,7 @@ def distribute(app, dsym, branchDirectory, config, configData, projectDirectory)
             mobileprovision, identity, ipaPackageHook, **hockeyArgs)
     print '%(config)s build complete!' % locals()
 
-def runConfig(config, configData, projectDirectory):
+def runConfig(config, configData, projectDirectory, branchesDirectory):
     target = configData['target']
     postBuildHook = configData['configurations'][config].get('post_build_hook')
     if postBuildHook: postBuildHook = os.path.join(projectDirectory, postBuildHook)
@@ -89,7 +89,7 @@ def readConfig(configFile):
         os.makedirs(branchesDirectory)
 
     for config in configData['configurations']:
-        runConfig(config, configData, projectDirectory)
+        runConfig(config, configData, projectDirectory, branchesDirectory)
 
 while(1):
     configFile = None

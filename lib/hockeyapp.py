@@ -11,7 +11,7 @@ markdown = 1
 unavailable = 1
 available = 2
 
-def upload(teamToken, appIdentifier, ipa, dsym=None, dsymIdentifier=None, notes='', additionalNotes='',
+def upload(ipa, teamToken, appIdentifier, dsym=None, dsymIdentifier=None, notes='', additionalNotes='',
     notesType=textile, notify=False, status=unavailable, mandatory=False, tags=None):
 
     status = _status(status)
@@ -66,11 +66,11 @@ def latestVersion(teamToken, appIdentifier):
     return lastVersion
 
 def _notesType(notesType):
-    if notesType.lower() == 'markdown': notesType = 1
+    if isinstance(notesType, basestring) and notesType.lower() == 'markdown': notesType = 1
     if notesType == 1: return 1
     return 0
 
 def _status(status):
-    if status.lower() == 'available': status = 2
+    if isinstance(status, basestring) and status.lower() == 'available': status = 2
     if status == 2: return 2
     return 1

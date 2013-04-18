@@ -6,7 +6,9 @@ import lib as buildly
 import subprocess
 import time
 
-def build(branchDirectory):
+def build(branchDirectory, configData):
+    target = configData['target']
+    output = os.path.expanduser(configData['output_directory'])
     icon_directory = configData['configurations'].get('release', {}).get('icon_directory')
     replacementIconsDirectory = os.path.join(projectDirectory, icon_directory) if icon_directory else None
     mobileprovision = configData['configurations'].get('release', {}).get('mobileprovision')
@@ -15,7 +17,9 @@ def build(branchDirectory):
     identity = configData['configurations'].get('release', {}).get('identity')
     return buildly.buildPublish(branchDirectory, target, output, displayName, mobileprovision, replacementIconsDirectory, identity)
 
-def distribute(app, dsym, branchDirectory, config):
+def distribute(app, dsym, branchDirectory, config, configData):
+    target = configData['target']
+    output = os.path.expanduser(configData['output_directory'])
     icon_directory = configData['configurations'][config].get('icon_directory')
     replacementIconsDirectory = os.path.join(projectDirectory, icon_directory) if icon_directory else None
     ipaPackageHook = configData['configurations'][config].get('ipa_package_hook')
@@ -33,7 +37,8 @@ def distribute(app, dsym, branchDirectory, config):
             mobileprovision, identity, ipaPackageHook, **hockeyArgs)
     print '%(config)s build complete!' % locals()
 
-def runConfig(config):
+def runConfig(config, configData):
+    target = configData['target']
     postBuildHook = configData['configurations'][config].get('post_build_hook')
     if postBuildHook: postBuildHook = os.path.join(projectDirectory, postBuildHook)
     branchName = configData['configurations'][config]['git_branch']
@@ -56,8 +61,8 @@ def runConfig(config):
 
     print 'Buildling: %(config)s %(version)s from %(branchName)s' % locals()
 
-    app, dsym = build(branchDirectory)
-    distribute(app, dsym, branchDirectory, config)
+    app, dsym = build(branchDirectory, configData)
+    distribute(app, dsym, branchDirectory, config, configData)
 
     with open(versionFilepath, 'w') as versionFile:
         versionFile.write(version)
@@ -79,16 +84,12 @@ def readConfig(configFile):
     buildly.git.pull(projectDirectory)
 
     configData = buildly.plistlib27.readPlist(configFile)
-
-    target = configData['target']
-    output = os.path.expanduser(configData['output_directory'])
-
     branchesDirectory = os.path.join(projectDirectory, 'branches')
     if not os.path.isdir(branchesDirectory):
         os.makedirs(branchesDirectory)
 
     for config in configData['configurations']:
-        runConfig(config)
+        runConfig(config, configData)
 
 while(1):
     configFile = None

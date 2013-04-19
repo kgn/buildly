@@ -72,9 +72,7 @@ def runConfig(config, configData, projectDirectory, branchesDirectory):
     if config == 'release':
         buildly.git.tagRelease(branchDirectory, version)
 
-    if os.path.isfile(postBuildHook):
-        shortVersion = buildly.projectShortVersion(branchDirectory, target)
-        subprocess.call('"./%(postBuildHook)s" "%(shortVersion)s"' % locals(), shell=True)
+    buildly.runScript(postBuildHook, buildly.projectShortVersion(branchDirectory, target))
 
 def readConfig(configFile):
     if not configFile: raise RuntimeError('No config plist specified')

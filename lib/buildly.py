@@ -1,4 +1,4 @@
-__all__ = ('projectVersion', 'projectShortVersion', 'buildPublish', 'hockeyappUpload', 'releaseBuild', 'releaseNotes', 'outputAppDsym')
+__all__ = ('projectVersion', 'projectShortVersion', 'buildPublish', 'hockeyappUpload', 'releaseBuild', 'releaseNotes', 'outputAppDsym', 'runScript')
 
 import os
 import shutil
@@ -51,7 +51,7 @@ def hockeyappUpload(app, dsym, displayName, replacementIconsDirectory,
     def modify(payloadApp):
         _replaceIcons(payloadApp, replacementIconsDirectory)
         _updateAppInfo(payloadApp, displayName, identifier)
-        _ipaPackageHook(payloadApp, ipaPackageHook)
+        runScript(ipaPackageHook, payloadApp)
         xcode.codesign(payloadApp, mobileprovision, identity)
     ipa = xcode.package(app, modify)
 
@@ -66,7 +66,7 @@ def hockeyappUpload(app, dsym, displayName, replacementIconsDirectory,
 
 def releaseBuild(app, dsym, branchDirectory, target, output, ipaPackageHook, **hockeyArgs):
     def modify(payloadApp):
-        _ipaPackageHook(payloadApp, ipaPackageHook)
+        runScript(ipaPackageHook, payloadApp)
 
     ipa = xcode.package(app, modify)
     hockeyArgs['dsym'] = dsym
@@ -90,6 +90,16 @@ def outputAppDsym(outputRoot, target, version):
     app = os.path.join(directory, target+'.app')
     return (app, app+'.dSYM')
 
+def runScript(script, *args):
+    if not os.path.isfile(script): return
+    argsString = '"'+args.join('" "')+'"'
+    interpreter = 'sh'
+    if os.path.splitext(script)[1] == '.py':
+        interpreter = 'python'
+    elif os.path.splitext(script)[1] == '.rb':
+        interpreter = 'ruby'
+    subprocess.call('%(interpreter)s "%(script)s" %(argsString)s' % locals(), shell=True)
+
 # Private
 
 def _outputDirectory(outputRoot, version):
@@ -109,7 +119,3 @@ def _updateAppInfo(app, displayName, identifier):
     if identifier:
         data['CFBundleIdentifier'] = identifier
     xcode.updateInfoPlist(app, data)
-
-def _ipaPackageHook(payloadApp, script):
-    if not os.path.isfile(script): return
-    subprocess.call('"./%(script)s" "%(payloadApp)s"' % locals(), shell=True)

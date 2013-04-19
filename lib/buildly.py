@@ -92,7 +92,7 @@ def outputAppDsym(outputRoot, target, version):
 
 def runScript(script, *args):
     if not os.path.isfile(script): return
-    argsString = '"'+args.join('" "')+'"'
+    argsString = '"'+'" "'.join(args)+'"'
     interpreter = 'sh'
     if os.path.splitext(script)[1] == '.py':
         interpreter = 'python'

@@ -112,4 +112,4 @@ def _updateAppInfo(app, displayName, identifier):
 
 def _ipaPackageHook(payloadApp, script):
     if not os.path.isfile(script): return
-    subprocess.call('python "%(script)s" "%(payloadApp)s"' % locals(), shell=True)
+    subprocess.call('"./%(script)s" "%(payloadApp)s"' % locals(), shell=True)

@@ -74,7 +74,7 @@ def runConfig(config, configData, projectDirectory, branchesDirectory):
 
     if os.path.isfile(postBuildHook):
         shortVersion = buildly.projectShortVersion(branchDirectory, target)
-        subprocess.call('python "%(postBuildHook)s" "%(shortVersion)s"' % locals(), shell=True)
+        subprocess.call('"./%(postBuildHook)s" "%(shortVersion)s"' % locals(), shell=True)
 
 def readConfig(configFile):
     if not configFile: raise RuntimeError('No config plist specified')

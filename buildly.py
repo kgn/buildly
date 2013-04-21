@@ -29,7 +29,7 @@ def distribute(app, dsym, branchDirectory, config, configData, projectDirectory)
     display_name = configData['configurations'][config].get('display_name')
     identity = configData['configurations'][config].get('identity')
     hockeyArgs = configData['configurations'][config]['hockeyapp']
-    hockeyArgs['notes'] = buildly.releaseNotes(branchDirectory, hockeyArgs)
+    hockeyArgs['notes'] = buildly.releaseNotes(branchDirectory, **hockeyArgs)
 
     if config == 'release':
         buildly.releaseBuild(app, dsym, branchDirectory, target, output, ipaPackageHook, **hockeyArgs)

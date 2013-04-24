@@ -91,6 +91,7 @@ def outputAppDsym(outputRoot, target, version):
     return (app, app+'.dSYM')
 
 def runScript(script, *args):
+    if not script: return
     if not os.path.isfile(script): return
     argsString = '"'+'" "'.join(args)+'"'
     interpreter = 'sh'

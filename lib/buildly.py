@@ -15,7 +15,7 @@ def projectVersion(branchDirectory, target):
 def projectShortVersion(branchDirectory, target):
     return plistlib27.readPlist(os.path.join(branchDirectory, target+'-Info.plist'))['CFBundleShortVersionString']
 
-def buildPublish(branchDirectory, target, output, displayName=None, mobileprovision=None, replacementIconsDirectory=None, identity=None):
+def buildPublish(branchDirectory, target, output, ipaPackageHook=None, displayName=None, mobileprovision=None, replacementIconsDirectory=None, identity=None):
     version = projectVersion(branchDirectory, target)
     outputDirectory = _outputDirectory(output, version)
     if os.path.isdir(outputDirectory):
@@ -26,6 +26,7 @@ def buildPublish(branchDirectory, target, output, displayName=None, mobileprovis
         def modify(payloadApp):
             _replaceIcons(payloadApp, replacementIconsDirectory)
             _updateAppInfo(payloadApp, displayName, xcode.identifier(mobileprovision))
+            runScript(ipaPackageHook, payloadApp)            
             xcode.codesign(payloadApp, mobileprovision, identity)
         app, dsym = xcode.build(branchDirectory, target, modify)
     else:

@@ -11,11 +11,13 @@ def build(branchDirectory, configData, projectDirectory):
     output = os.path.expanduser(configData['output_directory'])
     icon_directory = configData['configurations'].get('release', {}).get('icon_directory')
     replacementIconsDirectory = os.path.join(projectDirectory, icon_directory) if icon_directory else None
+    ipaPackageHook = configData['configurations'].get('release', {}).get('ipa_package_hook')
+    if ipaPackageHook: ipaPackageHook = os.path.join(projectDirectory, ipaPackageHook)
     mobileprovision = configData['configurations'].get('release', {}).get('mobileprovision')
     mobileprovision = os.path.join(projectDirectory, mobileprovision) if mobileprovision else None
     displayName = configData['configurations'].get('release', {}).get('display_name')
     identity = configData['configurations'].get('release', {}).get('identity')
-    return buildly.buildPublish(branchDirectory, target, output, displayName, mobileprovision, replacementIconsDirectory, identity)
+    return buildly.buildPublish(branchDirectory, target, output, ipaPackageHook, displayName, mobileprovision, replacementIconsDirectory, identity)
 
 def distribute(app, dsym, branchDirectory, config, configData, projectDirectory):
     target = configData['target']

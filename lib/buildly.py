@@ -100,6 +100,7 @@ def runScript(script, *args):
     elif os.path.splitext(script)[1] == '.rb':
         interpreter = 'ruby'
     subprocess.call('%(interpreter)s "%(script)s" %(argsString)s' % locals(), shell=True)
+    print 'Run script "%(script)s"' % locals()
 
 # Private
 

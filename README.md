@@ -14,7 +14,7 @@ Running this will cause Buildly to checkout the specified branch for each build 
 
 # buildly.plist
 
-This is the configuration file that contains all of the information needed for the build system and the various builds you want to do. The file does not have to be named `buildly.plist` it is just recommend and will be referred to by this name later in the document.
+This is the configuration file that contains all of the information needed for the build system and the various builds you want to do. The file does not have to be named `buildly.plist` it is just recommend and will be referred to by this name later in this document.
 
 An example plist named `example_buildly.plist` is included in this repository that can be used as a starting point.
 

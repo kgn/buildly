@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>target</key>
+	<string>MyApp</string>
+	<key>output_directory</key>
+	<string>~/Dropbox/Builds</string>
+	<key>git_repo</key>
+	<string>https://github.com/me/MyApp.git</string>
+	<key>configurations</key>
+	<dict>
+		<key>beta</key>
+		<dict>
+			<key>git_branch</key>
+			<string>build/beta</string>
+			<key>display_name</key>
+			<string>MyApp β</string>
+			<key>identity</key>
+			<string>iPhone Distribution: Me</string>
+			<key>mobileprovision</key>
+			<string>configs/beta/MyAppBeta.mobileprovision</string>
+			<key>icon_directory</key>
+			<string>configs/beta</string>
+			<key>hockeyapp</key>
+			<dict>
+				<key>teamToken</key>
+				<string>&lt;HockeyApp Team Token&gt;</string>
+				<key>appIdentifier</key>
+				<string>&lt;HockeyApp Beta App Identifier&gt;</string>
+				<key>notify</key>
+				<true/>
+				<key>status</key>
+				<string>available</string>
+				<key>tags</key>
+				<string>beta_testers</string>
+			</dict>
+		</dict>
+		<key>release</key>
+		<dict>
+			<key>git_branch</key>
+			<string>build/release</string>
+			<key>display_name</key>
+			<string>MyApp</string>
+			<key>identity</key>
+			<string>iPhone Distribution: Me</string>
+			<key>mobileprovision</key>
+			<string>configs/release/MyAppRelease.mobileprovision</string>
+			<key>icon_directory</key>
+			<string>configs/release</string>
+			<key>hockeyapp</key>
+			<dict>
+				<key>teamToken</key>
+				<string>&lt;HockeyApp Team Token&gt;</string>
+				<key>appIdentifier</key>
+				<string>&lt;HockeyApp Release App Identifier&gt;</string>
+			</dict>
+		</dict>
+	</dict>
+</dict>
+</plist>

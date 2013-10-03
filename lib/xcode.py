@@ -105,8 +105,16 @@ def codesign(app, mobileprovision=None, identity=None):
     entitlements['keychain-access-groups'] = [entitlements['application-identifier']]
     plistlib27.writePlist(entitlements, entitlementsFile)
 
+    # with Xcode 5 the command line tools now install to /usr/bin
+    codesign_allocate = '/usr/bin/codesign_allocate'
+    if not os.path.isfile(codesign_allocate):
+        codesign_allocate = '%s%s' % (XcodePath(), codesign_allocate)
+
+    if not os.path.isfile(codesign_allocate):
+        raise RuntimeError('Cannot find codesigning command line tools. Please ensure that the Command Line Tools are installed from Xcode')
+
     # Needed for Mountain Lion: http://stackoverflow.com/a/11723891/239380
-    os.putenv('CODESIGN_ALLOCATE', '%s/usr/bin/codesign_allocate' % XcodePath())
+    os.putenv('CODESIGN_ALLOCATE', codesign_allocate)
     codesign = 'codesign --force --sign "%(identity)s" --entitlements "%(entitlementsFile)s" "%(app)s"'
     if subprocess.call(codesign % locals(), shell=True):
         if os.path.isfile(entitlementsFile): os.remove(entitlementsFile)

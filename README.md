@@ -28,11 +28,11 @@ There are several global keys:
 
 ## Configuration Options
 
-Each build can have it's own configuration options. The `release` key is treated special and will cause an `.xcarchive` file that you can submit to the app store.
+Each build can have it's own configuration options. The `release` key is treated special and will cause a `.xcarchive` file that you can submit to the app store.
 
 - `git_branch` - this is the git branch to checkout from the `git_repo`. If the version number of the app in this branch is different than the last build a build is kicked off.
 - `display_name` - this is the name to use as the display name of the built application.
-- `identity` - this is common name of the keychain certificate. This certificate must be present on the machine.
+- `identity` - this is common the name of the keychain certificate. This certificate must be present on the machine.
 - `mobileprovision` - this is the path to the `.mobileprovision` file to use to code-sign this build. This path can be relative to the `buildly.plist` file.
 - `icon_directory` - this is the path to a directory of icons to use for the resulting build. This path can be relative to the `buildly.plist` file.
 

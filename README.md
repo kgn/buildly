@@ -74,4 +74,4 @@ The rest of the scripts in `lib` should be self explanatory and relate to Xcode,
 
 # mobileprovisionPlist
 
-`mobileprovisionPlist` is command line tool that extracts the plist from a `.mobileprovision`. This is used during the codesigning but is also handy to looking at and debugging `.mobileprovision` files.
+`mobileprovisionPlist` is a command line tool that extracts the plist from a `.mobileprovision`. This is used during the codesigning but is also handy to looking at and debugging `.mobileprovision` files.

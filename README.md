@@ -66,10 +66,12 @@ Due to Buildly's modular structure support for TestFlight could be added but is 
 
 # lib/buildly.py
 
-`lib/build.py` contains the high-level methods involved with building the app, modifying the bundle, packaging it into an ipa, re-codesigning, uploading to HockeyApp, and creating the `.xcarchive` for `release` builds.
+`lib/buildly.py` contains the high-level methods involved with building the app, modifying the bundle, packaging it into an ipa, re-codesigning, uploading to HockeyApp, and creating the `.xcarchive` for `release` builds.
 
 # lib
 
 The rest of the scripts in `lib` should be self explanatory and relate to Xcode, HockeyApp, Git, and other low level tasks.
 
+# mobileprovisionPlist
 
+`mobileprovisionPlist` is command line tool that extracts the plist from a `.mobileprovision`. This is used during the codesigning but is also handy to looking at and debugging `.mobileprovision` files.

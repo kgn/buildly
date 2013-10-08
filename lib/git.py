@@ -73,6 +73,7 @@ def _versionsAndTags(repo, startswith='Build'):
 
 def _latestBuildTag(repo):
     versionsAndTags = _versionsAndTags(repo)
+    if len(versionsAndTags) == 0: return None
     return versionsAndTags[sorted(versionsAndTags.iterkeys())[-1]]
 
 def _buildTagFromVersion(repo, fromVersion):

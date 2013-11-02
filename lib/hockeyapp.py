@@ -42,11 +42,9 @@ def upload(ipa, teamToken, appIdentifier, dsym=None, dsymIdentifier=None, notes=
         '-F notes_type=%(notesType)d -F ipa=@"%(ipa)s" '+
         '%(dsymCurl)s -F tags="%(tags)s" -H X-HockeyAppToken:%(teamToken)s '+
         'https://rink.hockeyapp.net/api/2/apps/%(appIdentifier)s/app_versions')
-
     output = json.loads(subprocess.check_output(curl % locals(), shell=True))
     if dsymCurl: os.remove(dsymZip)
-
-    if 'errors' in output:
+    if output.get('status') == 'error':
         raise RuntimeError('HockeyApp errors: %r' % output)
 
     return output
